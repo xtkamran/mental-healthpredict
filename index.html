@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mental Health Prediction</title>
+    <style>
+        /* Import a clean modern font */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap');
+
+/* General Styles */
+body {
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(135deg, #EAF6F6, #C6E2E9);
+    color: #2C3E50;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+/* Glassmorphic Container */
+.container {
+    background: rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(10px);
+    padding: 2rem;
+    border-radius: 16px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    max-width: 420px;
+    text-align: center;
+    transition: 0.3s ease-in-out;
+}
+
+/* Headings */
+h1 {
+    font-size: 26px;
+    color: #355C7D;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+p {
+    font-size: 16px;
+    color: #4A4A4A;
+    opacity: 0.8;
+}
+
+/* Buttons */
+button {
+    background: linear-gradient(135deg, #6A82FB, #FC5C7D);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out, box-shadow 0.3s ease;
+}
+
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(255, 105, 135, 0.3);
+}
+
+/* Inputs */
+input, textarea {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    margin-top: 8px;
+    background: rgba(255, 255, 255, 0.6);
+    box-shadow: inset 0px 4px 6px rgba(0, 0, 0, 0.05);
+    outline: none;
+    transition: all 0.3s ease-in-out;
+}
+
+input:focus, textarea:focus {
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 0 8px rgba(106, 130, 251, 0.4);
+}
+
+/* Smooth Fade-in Animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.container {
+    animation: fadeIn 0.8s ease-in-out;
+}
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Mental Health Prediction</h2>
+    <label for="bmi">BMI:</label>
+    <input type="number" id="bmi" placeholder="Between 10 and 40" min="10" max="40"><br><br><br>
+
+    <label for="epworth">Epworth Sleep Score:</label>
+    <input type="number" id="epworth" placeholder="less than or equal to 24" min="0" max="24"><br><br><br>
+
+    <label for="suicidal">Suicidal Thoughts:</label>
+    <select id="suicidal"><option value="0"> No</option><option value="1"> Yes</option></select>
+
+    <label for="depressiveness">Feeling Depressed?</label>
+    <select id="depressiveness"><option value="0">No</option><option value="1">Yes</option></select>
+
+    <label for="anxiousness">Feeling Anxious?</label>
+    <select id="anxiousness"><option value="0">No</option><option value="1">Yes</option></select><br><br><br>
+
+    <button onclick="predict()">Get Prediction</button>
+    <div id="result"></div><br><br><br>
+
+
+</div>
+
+<script>
+    function predict() {
+        let data = {
+            "bmi": parseFloat(document.getElementById("bmi").value),
+            "epworth_score": parseInt(document.getElementById("epworth").value),
+            "suicidal": parseInt(document.getElementById("suicidal").value),
+            "depressiveness": parseInt(document.getElementById("depressiveness").value),
+            "anxiousness": parseInt(document.getElementById("anxiousness").value)
+        };
+
+        fetch("http://127.0.0.1:5000/predict", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(result => {
+            document.getElementById("result").style.display = "block";
+            document.getElementById("result").innerHTML = `
+                <strong>PHQ Score:</strong> ${result.predicted_phq_score} <br>
+                <strong>Depression Severity:</strong> ${result.depression_severity} <br>
+                <strong>GAD Score:</strong> ${result.predicted_gad_score} <br>
+                <strong>Anxiety Severity:</strong> ${result.anxiety_severity}
+            `;
+        })
+        .catch(error => console.error("Error:", error));
+    }
+</script>
+
+</body>
+</html>
